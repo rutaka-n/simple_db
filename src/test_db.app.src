@@ -1,0 +1,16 @@
+{application, test_db,
+ [{description, "Test db application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, { db, []}},
+  {applications,
+   [kernel,
+    stdlib
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {maintainers, []},
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.
