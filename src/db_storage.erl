@@ -47,28 +47,16 @@ delete(Key, Name) ->
 init([]) -> {ok, dict:new()}.
 
 handle_call({read, Key, Name}, _From, RegisteredNames) ->
-        Reply = case dict:find(Name, RegisteredNames) of
-                        error -> {error, "There are not any DB with this name"};
-                        {ok, DB} -> do_read(DB, Key)
-                end,
+        Reply = with_db(Name, RegisteredNames, fun(DB) -> do_read(DB, Key) end),
         {reply, Reply, RegisteredNames};
 handle_call({insert, Record, Name}, _From, RegisteredNames) ->
-        Reply = case dict:find(Name, RegisteredNames) of
-                        error -> {error, "There are not any DB with this name"};
-                        {ok, DB} -> do_insert(DB, Record)
-                end,
+        Reply = with_db(Name, RegisteredNames, fun(DB) -> do_insert(DB, Record) end),
         {reply, Reply, RegisteredNames};
 handle_call({delete, Key, Name}, _From, RegisteredNames) ->
-        Reply = case dict:find(Name, RegisteredNames) of
-                        error -> {error, "There are not any DB with this name"};
-                        {ok, DB} -> do_delete(DB, Key)
-                end,
+        Reply = with_db(Name, RegisteredNames, fun(DB) -> do_delete(DB, Key) end),
         {reply, Reply, RegisteredNames};
 handle_call({update, Record, Name}, _From, RegisteredNames) ->
-        Reply = case dict:find(Name, RegisteredNames) of
-                        error -> {error, "There are not any DB with this name"};
-                        {ok, DB} -> do_update(DB, Record)
-                end,
+        Reply = with_db(Name, RegisteredNames, fun(DB) -> do_update(DB, Record) end),
         {reply, Reply, RegisteredNames};
 handle_call(get_names, _From, RegisteredNames) ->
         {reply, dict:fetch_keys(RegisteredNames), RegisteredNames};
@@ -98,6 +86,12 @@ terminate(_Reason, _State) -> ok.
 %%====================================================================
 %% Internal functions
 %%====================================================================
+
+with_db(Name, RegisteredNames, Fun) ->
+        case dict:find(Name, RegisteredNames) of
+                error -> {error, "There are not any DB with this name"};
+                {ok, DB} -> Fun(DB)
+        end.
 
 do_insert(DB, Record) ->
         case ets:insert_new(DB, Record) of
