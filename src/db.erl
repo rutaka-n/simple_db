@@ -8,7 +8,7 @@
 -behaviour(application).
 
 %% Application callbacks
--export([start/0, stop/1]).
+-export([start/0, stop/0,  start/2, stop/1]).
 %% API
 -export([new/1, create/2, read/2, update/2, delete/2]).
 
@@ -17,9 +17,15 @@
 %%====================================================================
 
 start() ->
+        start([], []).
+
+start(_, _) ->
         db_sup:start_link().
 
 %%--------------------------------------------------------------------
+stop() ->
+        stop([]).
+
 stop(_State) ->
         ok.
 
